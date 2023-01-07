@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listing Analysis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <style>
+        .y-axis{
+            stroke:black;
+            writing-mode:vertical-lr;
+        }
+        .x-axis {
+            stroke:black
+        }
+        .title {
+            stroke:crimson;
+            font-weight:900;
+            font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            text-shadow: 5px;
+            font-size:20px;
+        }
+
+        #detail-div, #detail-div-2 {
+            margin-left:50px;
+        }
+
+        ul {
+            width:fit-content;
+            height: 200px;
+        }
+        li {
+            font-size: 10px;
+        }
+        p-maps {
+            font-size:15px;
+        }
+    </style>
+
+</head>
+<body>  
+    <div id="display-svg">
+        <div id="svg-container" class="container" style="display: flex;">
+            <svg id="svg-listing"></svg>
+            <div id="detail-div">
+                <p style="font-size:15px">Hover the mouse over the bar to get the detail of listing :</p>
+                <ul id="detail-1" class="list-group">
+                </ul>
+            </div>
+    
+        </div>       
+        <div id="svg-map-container" class="container" style="display:flex">
+            <svg id="svg-map"></svg>
+            <div id="detail-div-2">
+                <p class="p-maps">1. The map on the left is translated from longitude and latitude of listing location provided in dataset</p>
+                <p class="p-maps">2. Hover the mouse over the points at the map to get the detail of listing :</p>
+                <p class="p-mpas">3. Map also can be zoomed and panned , bigger cicle radius and darker color corespond to higher count</p>
+                <ul id="detail-2" class="list-group">
+                </ul>
+            </div>
+        </div>
+    </div> 
+    
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+        var margin = {top:20,left:60, bottom:60, right:20}
+        var width = 660-margin.left-margin.right 
+        var height = 300-margin.bottom-margin.top 
+
+        Promise.all(
+            [d3.json("gb_listing.json"),d3.json("countries.geojson")]
+        ).then(values=>{
+            showData(values)
+        })
+
+        function showData(data) {
+            const listing = data[0]
+            const country = data[1]
+            console.log(listing)
+            
+            
+            svg_listing = d3.select("#svg-listing")
+            .attr("width",width+margin.right+margin.left)
+            .attr("height",height+margin.top+margin.bottom)
+
+            svg_listing_g = svg_listing.append("g")
+                .append("g")
+                .attr("transform",`translate(${margin.left},${margin.top})`)
+                .attr("width",width)
+                .attr("height",height)
+            
+          
+            // create scale object 
+            xScale = d3.scaleBand()
+            .domain(listing.map(d=>d.d_index))
+            .range([0,width])
+
+            yScale = d3.scaleLinear()
+            .domain([0,d3.max(listing.map(d=>+d.count))+20])
+            .range([height,0])
+
+            colorScale = d3.scaleSequential().domain([0,d3.max(listing.map(d=>+d.count))])
+            .interpolator(d3.interpolateBrBG)
+
+            //draw the bar 
+            svg_listing_g.selectAll("rect")
+            .data(listing)
+            .enter()
+            .append("rect")
+            .attr("x",d=>xScale(d.d_index))
+            .attr("y",(d)=>yScale(+d.count))
+            .attr("width",(d)=>(width/listing.length-3))
+            .attr("height",(d)=>height-yScale(+d.count))
+            .attr("dataID",(d=>d.listing_id))
+            .style("stroke","black")
+            .style("fill",d=>colorScale(+d.count))   
+            
+            //draw the axis 
+            svg_listing.append("g")
+            .attr("transform",`translate(${margin.left},${margin.top})`)
+            .call(d3.axisLeft(yScale))
+            .selectAll("text")
+            .style("font-size","8px")         
+
+            svg_listing.append("g")
+            .attr("transform",`translate(${margin.left},${height+margin.top})`)
+            .call(d3.axisBottom(xScale))
+            .selectAll("text")
+            .style("font-size","8px")
+
+            //draw the axis labels and title
+            svg_listing.append("text")
+            .attr("class","y-axis")
+            .attr("transform",`translate(${10},${height/2})`)
+            .text("Number of Reviews")
+            svg_listing.append("text")
+            .attr("class","x-axis")
+            .attr("transform",`translate(${width/2},${height+margin.bottom})`)
+            .text("Index of Listing ID")
+
+            svg_listing.append("text")
+            .attr("class","title")
+            .attr("transform",`translate(${width/2},${2*(margin.top)})`)
+            .text("Top 50 Listings by number of reviews")
+
+            //add mouse over event to bar 
+
+            svg_listing_g.selectAll("rect")
+            .on("mouseover",function(event){
+                let bar = d3.select(this)
+                bar.style("fill","red")
+
+                let detailList = d3.select("#detail-1")
+
+                let dataID = bar.attr("dataID")
+                let detailedDataList = listing.filter((data)=>{
+                    return data.listing_id == dataID
+                }
+                )
+                let detailedData = detailedDataList[0]
+                included = ["listing_id","count","name","neighbourhood","latitude","longitude","room_type"]
+
+                for(let i in detailedData){
+                    if (included.includes(i)) {
+                        d3.select("#detail-1")
+                        .append("li")
+                        .attr("class","list-group-item list-group-item-success")
+                        .text(`${i}: ${detailedData[i]}`)
+                    }
+                }
+                
+            
+
+            })
+            
+            // add mouse leave event to bar 
+            svg_listing_g.selectAll("rect")
+            .on("mouseout",function(event){
+                let bar = d3.select(this)
+                bar.style("fill",d=>colorScale(+d.count)) 
+                bar.attr("stroke","black")
+                d3.select("#detail-1").selectAll("li")
+                .remove()
+            })
+
+
+            //////////////////////////ADD MAPS//////////////////////
+            
+
+            
+           
+            let projection = d3.geoMercator().center([103.8198,1.3521]).translate([width/2,height/2+50]).scale(70000)
+            
+            let geoGenerator = d3.geoPath()
+                .projection(projection)
+
+            let singapore = country.features.filter((d)=>d.properties["ADMIN"]=="Singapore")
+            let malaysia = country.features.filter((d)=>d.properties["ADMIN"]=="Malaysia")
+            let sinMY = country.features.filter((d)=>d.properties["ADMIN"]=="Malaysia"||d.properties["ADMIN"]=="Singapore")
+     
+            
+
+            svg_map = d3.select("#svg-map").attr("width",width+margin.left+margin.right)
+            .attr("height",height+margin.top+margin.bottom)
+            
+
+            svg_map_g_1 = svg_map.append("g")
+
+            svg_map_g_1.selectAll("path")
+            .data(country.features)
+            .enter()
+            .append("path")
+            .attr("d",geoGenerator)
+            .style("fill","grey")
+
+            svg_map_g_2 = svg_map.append("g")
+            
+            svg_map_g_2.selectAll("path")
+            .data(singapore)
+            .enter()
+            .append("path")
+            .attr("d",geoGenerator)
+            .style("fill","grey")
+
+            
+     
+
+            svg_map_g_3 = svg_map.append("g").selectAll("path")
+            .data(malaysia)
+            .enter()
+            .append("path")
+            .attr("d",geoGenerator)
+            .style("fill","BlanchedAlmond")
+
+           ///// CREATE GEOJSON OBJECT FROM DATA GATHERED FROM GROUP BY LISTING////// 
+            
+            let listingGeojson = {
+                "type":"FeatureCollection",
+                "features": [
+                    
+                ]
+            }
+            
+
+            listing.forEach((d)=>{
+                let geoObj = {
+                    "type":"Feature",
+                    "properties":{
+                        "name":d.name,
+                        "count":+d.count,
+                        "id":d.listing_id,
+                        "neigh":d.neighbourhood,
+                        "index":d.index
+                        
+
+                    },
+                    "geometry":{
+                        "type":"Point",
+                        "coordinates":[d.longitude,d.latitude]
+                    }
+                }
+                listingGeojson.features.push(geoObj)
+            })
+
+            
+            /// DRAW THE LISTING LOCATION INTO THE MAP ///
+
+            mapColorScale = d3.scaleSequential().domain([0,d3.max(listing.map(d=>+d.count))])
+            .interpolator(d3.interpolateOranges)
+
+            svg_map_g_4 = svg_map.append("g").selectAll("circle")
+            .data(listingGeojson.features)
+            .enter()
+            .append("g")
+            .append("circle")
+            .style("fill",d=>mapColorScale(+d.properties.count))
+            .attr("cx",d=>{console.log(geoGenerator.projection()(d.geometry.coordinates)) ; return geoGenerator.projection()(d.geometry.coordinates)[0]})
+            .attr("cy",d=>geoGenerator.projection()(d.geometry.coordinates)[1])
+            .attr("r",d=>{console.log(d); return d.properties.count/150})
+            .style("opacity",0.8)
+            .on("mouseover",function(event){
+               
+                let g = d3.select(this.parentElement)
+                let circ = d3.select(this)
+                circ.style("fill","blue")
+                console.log(circ._groups[0][0])
+                
+                let text_id = circ._groups[0][0].__data__.properties.id
+                let text_count = circ._groups[0][0].__data__.properties.count
+                let neigh = circ._groups[0][0].__data__.properties.neigh
+                let x = circ._groups[0][0].cx.animVal.value
+                let y = circ._groups[0][0].cy.animVal.value
+
+                g.append("text")
+                .text(`ID=${text_id}, Count = ${text_count}, Neighbourhood:${neigh}`)
+                .attr("x",x)
+                .attr("y",y)
+                
+
+                // d3.select("#detail-2").selectAll("li")
+                // .data(listingGeojson.features)
+                // .append("li")
+                // .attr("innerHTML",d=>d.properties.id)
+                
+            })
+            .on("mouseout",function(event){
+                let g = d3.select(this.parentElement)
+                let circ = d3.select(this)
+                circ.style("fill",d=>mapColorScale(+d.properties.count))
+                
+                g.selectAll("text")
+                .remove()
+            })
+
+
+            
+
+
+
+           /// APPLY ZOOM AND PAN BEHAVIOR
+            
+            svg_map.call(d3.zoom()
+            .scaleExtent([1,100])
+            .on("zoom",function(event){
+                d3.select(this).selectAll("path")
+                .attr("transform",event.transform)
+                d3.select(this).selectAll("circle")
+                .attr("transform",event.transform)
+            })
+            
+            )
+
+            
+
+
+
+     
+        }
+
+        
+
+
+    </script>
+</body>
+</html>
