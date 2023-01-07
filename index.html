@@ -4,11 +4,124 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css" />
+    <title>DQlab AirBNB Task Report Summary </title>
 </head>
 <body>
-    <a href="visual.html">go to </a>
+    <header>
+
+    </header>
+    <main>
+        <div class="container" id="main-div" >
+            <h1>AirBNB Singapore Data Analysis</h1>
+            <h3>A simple portfolio project of data analysis course in <a href="https://www.dqlab.id/">dqlab</a> </h3>
+            <div class="accordion top-margin" id="accordionExample">
+                <div class="accordion-item">
+                  <h2 class="accordion-header bold" id="headingOne">
+                    <button class="accordion-button bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      Problem Statement
+                    </button>
+                  </h2>
+                  <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <p>
+                        Suppose that you are a data analyst who receive request from a client. This client owns a property and he wants to invest this property by renting it as a room in AirBNB Singapore. Given the existing data owned by AirBNB Singapore, you are asked to make recommendation(s) so his business can become a profitable one.  
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header bold" id="headingTwo">
+                    <button class="accordion-button collapsed bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      DataSet 
+                    </button>
+                  </h2>
+                  <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <p>The datasets are provided by DQlab and consist of 3 parts as follow : </p>
+                      <ul>
+                        <li>1. Listings.csv : contains detailed information about rental room (in this dataset, referred to as "listing") such as ID, name, longitude, latitude, price, neighbourhood, etc </li>
+                        <li>2. neigh.csv : contains information about region of the neighbourhood mentioned in listings.csv</li>
+                        <li>3. reviews.csv : contains rental / order history of all listings </li>
+                      </ul>
+                      <p style="color:red">Note : Several listings are actually located in Malaysia, but as both country are only divided by bridge and very close, so those listings are still considered relevant</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header bold" id="headingThree">
+                    <button class="accordion-button collapsed bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      My Plan 
+                    </button>
+                  </h2>
+                  <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <p>Based on domain knowledge, many poeple will agree that the keys of success for this case are Location of listing, price of listing, service quality of listing, and several other factors. In this particular project, i would like to focus only on one factor which is <strong>Location of Listing</strong><p>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header bold" id="headingFour">
+                      <button class="accordion-button collapsed bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        WorkFlow
+                      </button>
+                    </h2>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                      <div class="accordion-body">
+                        The workflow of this project is as follows : 
+                        <ul>
+                            <li>1. Do data pre-processing using python in jupyter notebook environment, such as : read from data source (csv), joining table, etc</li>
+                            <li>2. Analyze the data after grouped by listing ID. By doing this, we can see top performer listings and then associate them with their location</li>
+                            <li>3. Export the data into JSON format, so we can use D3.Js library to render the bar chart and distribution map according to their location in earth</li>
+                            <li>4. Gain insight from the data visualization and draw conclusion</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="accordion-item">
+                    <h2 class="accordion-header bold" id="headingFive">
+                      <button class="accordion-button collapsed bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        Data Visualization 
+                      </button>
+                    </h2>
+                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionExample">
+                      <div class="accordion-body">
+                        <p>In order to see the data visualization , please click below button ( need about 5-10 seconds to render the data from data source)</p>
+                        <a class ="btn btn-success" href="visual.html">Data Visualization</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="accordion-item">
+                    <h2 class="accordion-header bold" id="headingSix">
+                      <button class="accordion-button collapsed bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                        Recomendation
+                      </button>
+                    </h2>
+                    <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionExample">
+                      <div class="accordion-body">
+                        <p>According to data visualization, we can infer that : </p>
+                        <ul>
+                            <li>1. Many top listings ( especially in top 10 listings ) are actually located in Johor Bahru Malaysia which is located near the border between 2 countries</li>
+                            <li>2. Top listings in either Malaysia or Singapore are located near the sea or beach</li>
+                        </ul>
+                        <p>Why you ask? well , according to my opinion, border between 2 countries are usually crowded , there might be poeple from Malaysia work in Singapore and vice versa. Then, why the listing located inside border of Malaysia is rented more than Singapore's? Probably most of the customers are Malaysian which are not coming from area near border (Malaysia even have other states in another Island, Near Kalimantan, Indonesia) who have business in Singapore. Since crossing border is actually quite fast, so, they choose to spent their night in Malaysia rather than Singapore ( maybe they also consider the cost of hotel and daily necessities such as food and medicine around the hotel). Meanwhile, the high number of top listings located in South of Singapore mostly due to vacation reason, since they can travel to the sea or other reason such as tourist attraction.</p>
+                        <p style="color:blue">Recomendation = If the businessman is Malaysian , then i would recommend him to buy property near border inside Malyasia area, meanwhile, if the businessman is Singaporean, i recommend him to buy property in the South area of Singapore instead of the one near the border inside Malaysia ( since there will be additional fee or legal requirements) </p>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                  </div>
+              </div>
+        </div>
+
+    </main>
+    <footer>
+        <p>Source Code : <a href="https://github.com/lurah11/dqlab_task_airbnb">My Github Page</a></p>
+        <p style="color:red;font-weight:700">Disclaimer : I do not own the raw datasets, therefore i do not host them at github</p>
+    </footer>
     
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>
 
